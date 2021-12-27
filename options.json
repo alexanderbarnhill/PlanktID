@@ -1,5 +1,8 @@
 {
-  "model": {},
+  "model": {
+    "size": 18,
+    "pretrained": false
+  },
   "data": {
     "data_directory": "",
     "train_split": 0.8,
@@ -17,6 +20,7 @@
   },
   "training": {
     "epochs": 100,
-    "epochs_per_save": 1
+    "epochs_per_save": 1,
+    "training_directory": "/tmp"
   }
 }

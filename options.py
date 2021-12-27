@@ -1,5 +1,6 @@
 import json
 
+
 class Options:
     def __init__(self, options_path):
         with open(options_path, 'r') as f:
