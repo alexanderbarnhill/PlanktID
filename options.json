@@ -1,5 +1,47 @@
 {
   "model": {},
+  "augmentations": {
+    "resize": {
+      "active": true,
+      "width": 128,
+      "height": 128
+    },
+    "horizontal_flip": {
+      "active": true,
+      "probability": 0.5
+    },
+    "vertical_flip": {
+      "active": true,
+      "probability": 0.5
+    },
+    "random_affine": {
+      "active": true,
+      "degrees": 20
+    },
+    "color_jitter": {
+      "active": true,
+      "brightness": {
+        "active": true,
+        "min": 0,
+        "max": 0.2
+      },
+      "contrast": {
+        "active": true,
+        "min": 0,
+        "max": 0.7
+      },
+      "saturation": {
+        "active": true,
+        "min": 0,
+        "max": 0.2
+      },
+      "hue": {
+        "active": true,
+        "min": 0,
+        "max": 0.2
+      }
+    }
+  },
   "data": {
     "data_directory": "",
     "train_split": 0.8,

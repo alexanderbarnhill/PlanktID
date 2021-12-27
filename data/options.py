@@ -1,5 +1,6 @@
 import json
 
+
 class Options:
     def __init__(self, options_path):
         with open(options_path, 'r') as f:
@@ -22,4 +23,7 @@ class Options:
 
     def training_opts(self):
         return self.get("training")
+
+    def transform_opts(self):
+        return self.get("augmentations")
     
