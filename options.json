@@ -2,7 +2,8 @@
 
   "model": {
     "size": 18,
-    "pretrained": false
+    "pretrained": false,
+    "class_count": 121
   },
   "augmentations": {
     "resize": {
@@ -47,10 +48,10 @@
     }
   },
   "data": {
-    "data_directory": "",
+    "data_directory": "/home/alex/data/data_science_bowl/train",
     "train_split": 0.8,
-    "batch_size": 16,
-    "num_workers": 8
+    "batch_size": 2,
+    "num_workers": 0
   },
   "optimizer": {
     "learning_rate": 1e-3,
@@ -59,11 +60,15 @@
   },
   "scheduler": {
     "lr_decay_factor": 0,
+    "lr_patience_epochs": 5,
+    "epochs_per_eval": 1,
     "threshold": 1e-3
   },
   "training": {
     "epochs": 100,
-    "epochs_per_save": 1,
-    "training_directory": "/tmp"
+    "epoch_save_count": 1,
+    "patience_early_stopping": 10,
+    "training_directory": "/tmp",
+    "use_cuda": false
   }
 }

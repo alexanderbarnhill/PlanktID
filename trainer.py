@@ -47,7 +47,7 @@ class Trainer:
         self.metrics["accuracy"].update(labels, predictions, phase, epoch)
 
     def fit(self):
-        for epoch in self.epoch_count:
+        for epoch in range(self.epoch_count):
             train_loss, train_labels, train_predictions = self.train_epoch()
             self.report(train_loss, train_labels, train_predictions, constants.TRAIN, epoch)
 
@@ -68,8 +68,8 @@ class Trainer:
     def train_epoch(self):
         self.model.train()
         running_loss = []
-        all_predictions = []
-        all_labels = []
+        all_predictions = torch.tensor([])
+        all_labels = torch.tensor([])
         for data in self.train_data_loader:
             features, labels = data
             features.to(self.device)
@@ -77,8 +77,10 @@ class Trainer:
 
             loss, outputs = self.train_step(features, labels)
             running_loss.append(loss)
-            all_predictions.append(outputs)
-            all_labels.append(labels)
+
+            _, pred = torch.max(outputs, 1)
+            all_predictions = torch.cat((all_predictions, pred))
+            all_labels = torch.cat((all_labels, labels))
 
         return np.mean(running_loss), all_labels, all_predictions
 
@@ -94,8 +96,8 @@ class Trainer:
     def val_test_epoch(self, data_loader):
         self.model.eval()
         running_loss = []
-        all_predictions = []
-        all_labels = []
+        all_predictions = torch.tensor([])
+        all_labels = torch.tensor([])
         for data in data_loader:
             features, labels = data
             features.to(self.device)
@@ -103,8 +105,10 @@ class Trainer:
 
             loss, outputs = self.val_test_step(features, labels)
             running_loss.append(loss)
-            all_predictions.append(outputs)
-            all_labels.append(labels)
+
+            _, pred = torch.max(outputs, 1)
+            all_predictions = torch.cat((all_predictions, pred))
+            all_labels = torch.cat((all_labels, labels))
 
         self.scheduler.step(np.mean(running_loss))
 

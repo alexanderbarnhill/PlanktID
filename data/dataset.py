@@ -7,6 +7,7 @@ import random
 import torchvision as tv
 from skimage.io import imread
 
+from data.options import Options
 from data.transform import get_transforms
 from utilities import constants
 
@@ -74,11 +75,13 @@ class CSVDataset(Dataset):
     indicator = None
     data = None
 
-    def __init__(self, data_directory, train_split=0.75, mode=constants.TRAIN, t=tv.transforms.Compose([tv.transforms.ToTensor()])):
-        train_file, val_file, test_file = CSVDatasetSplit(data_directory, train_split)()
+    def __init__(self, options: Options, mode=constants.TRAIN):
+        self.data_options = options.data_opts()
+        train_file, val_file, test_file = CSVDatasetSplit(
+            self.data_options["data_directory"], self.data_options["train_split"])()
         self.indicator = train_file if mode == constants.TRAIN else val_file if mode == constants.VAL else test_file
         self.data = []
-        self.transform = get_transforms(mode)
+        self.transform = get_transforms(mode, options)
         class_dict_idx = 0
 
         with open(self.indicator, "r") as f:
@@ -99,12 +102,3 @@ class CSVDataset(Dataset):
     def __getitem__(self, index) -> T_co:
         file, class_name = self.data[index]
         return self.transform(imread(file)), self.class_dict[class_name]
-
-
-
-if __name__ == '__main__':
-    f = "/home/alex/data/data_science_bowl/train"
-    dataset = CSVDataset(f)
-    dl = DataLoader(dataset, batch_size=1, shuffle=True)
-    feature, label = next(iter(dl))
-    print("")
