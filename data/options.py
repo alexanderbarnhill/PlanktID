@@ -23,4 +23,7 @@ class Options:
 
     def training_opts(self):
         return self.get("training")
+
+    def transform_opts(self):
+        return self.get("augmentations")
     
