@@ -1,3 +1,6 @@
+ACC = "Accuracy"
+LOSS = "Loss"
+LR = "Learning Rate"
+TEST = "test"
 TRAIN = "train"
 VAL = "val"
-TEST = "test"

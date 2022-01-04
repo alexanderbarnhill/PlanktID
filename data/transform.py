@@ -7,12 +7,31 @@ from utilities import constants
 def get_transforms(mode, options: Options):
     if mode == constants.TRAIN:
         return get_train_transform(options)
+    else:
+        return get_val_test_transforms(options)
 
 
 def get_train_transform(options: Options):
     augmentations = options.transform_opts()
-    aug_keys = ['pil'] + list(augmentations.keys()) + ['tensor']
-    aug_dicts = [{'active': True}] + list(augmentations.values()) + [{'active': True}]
+    active_augmentations = {k: v for k, v in augmentations.items() if v['active']}
+    aug_keys = ['pil'] + list(active_augmentations.keys()) + ['tensor']
+    aug_dicts = [{'active': True}] + list(active_augmentations.values()) + [{'active': True}]
+    return tv.transforms.Compose([
+        build_transform(d, k) for (d, k) in zip(aug_dicts, aug_keys)
+    ])
+
+
+def get_val_test_transforms(options: Options):
+    augmentations = options.transform_opts()
+    active_augmentations = {k: v for k, v in augmentations.items() if v['active']}
+    aug_keys = ['pil']
+    aug_dicts = [{'active': True}]
+    if 'resize' in active_augmentations.keys():
+        aug_keys += ['resize']
+        aug_dicts += [active_augmentations['resize']]
+    aug_keys += ['tensor']
+    aug_dicts += [{'active': True}]
+
     return tv.transforms.Compose([
         build_transform(d, k) for (d, k) in zip(aug_dicts, aug_keys)
     ])

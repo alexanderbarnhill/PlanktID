@@ -3,6 +3,8 @@ import logging.handlers
 import os
 import queue
 
+from torch.utils.tensorboard import SummaryWriter
+
 
 class Singleton(type):
     _instances = {}
@@ -46,6 +48,7 @@ class Logger(metaclass=Singleton):
         self._logger.propagate = False
 
         self._listener.start()
+        self.tb = SummaryWriter(log_dir=log_dir, flush_secs=10)
 
     def close(self):
         self._listener.stop()
@@ -63,33 +66,6 @@ class Logger(metaclass=Singleton):
     def error(self, msg, *args, **kwargs):
         self._logger.error(msg, *args, **kwargs)
 
-    def epoch(
-        self,
-        phase,
-        epoch,
-        num_epochs,
-        loss,
-        accuracy=None,
-        f1_score=None,
-        precision=None,
-        recall=None,
-        lr=None,
-        epoch_time=None,
-    ):
-        s = "{}|{:03d}/{:d}|loss:{:0.3f}".format(
-            phase.upper().rjust(5, " "), epoch, num_epochs, loss
-        )
-        if accuracy is not None:
-            s += "|acc:{:0.3f}".format(accuracy)
-        if f1_score is not None:
-            s += "|f1:{:0.3f}".format(f1_score)
-        if precision is not None:
-            s += "|pr:{:0.3f}".format(precision)
-        if recall is not None:
-            s += "|re:{:0.3f}".format(recall)
-        if lr is not None:
-            s += "|lr:{:0.2e}".format(lr)
-        if epoch_time is not None:
-            s += "|t:{:0.1f}".format(epoch_time)
-
-        self._logger.info(s)
+    def add_scalar(self, identifier, value, epoch):
+        self.tb.add_scalar(identifier, value, epoch)
+        self._logger.info(f"Epoch {epoch} -- {identifier}: {value}")

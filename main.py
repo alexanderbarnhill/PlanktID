@@ -1,4 +1,5 @@
 import math
+import shutil
 
 from torch import optim
 from torch.optim import Adam
@@ -10,7 +11,7 @@ import os
 import constants
 from data.dataset import CSVDataset
 from data.options import Options
-from metrics import Accuracy, Loss
+from metrics import Accuracy, Loss, Sample, LearningRate
 from model.resnet import ResNet
 
 from trainer import Trainer
@@ -59,11 +60,19 @@ def get_logger(directory):
     )
 
 
+def write_options_to_training_dir(o_f, training_directory):
+    shutil.copy(o_f, training_directory)
+
+
 if __name__ == '__main__':
     options_file = os.path.join(os.getcwd(), "options.json")
     options = Options(options_file)
     training_dir = get_training_directory(base_directory=options.training_opts()["training_directory"])
-    writer = SummaryWriter(log_dir=training_dir, flush_secs=10)
+    write_options_to_training_dir(options_file, training_dir)
+
+    logger = get_logger(training_dir)
+
+    options.log(logger)
 
     model = get_model(options)
     optimizer = get_optimizer(model, options)
@@ -73,8 +82,10 @@ if __name__ == '__main__':
     patience_lr = int(max(1, patience_lr))
 
     metrics = {
-        'loss': Loss(writer=writer),
-        'accuracy': Accuracy(writer=writer)
+        'loss': Loss(logger=logger),
+        'accuracy': Accuracy(logger=logger),
+        'learning_rate': LearningRate(logger=logger),
+        'sample': Sample(logger=logger)
     }
 
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(
@@ -95,11 +106,11 @@ if __name__ == '__main__':
         scheduler=lr_scheduler,
         n_epochs=options.training_opts()["epochs"],
         patience_early_stopping=options.training_opts()["patience_early_stopping"],
-        logger=get_logger(training_dir),
-        summary_writer=writer,
+        logger=logger,
         metrics=metrics,
         epoch_save_count=options.training_opts()["epoch_save_count"],
-        device=get_device(options.training_opts()["use_cuda"])
+        device=get_device(options.training_opts()["use_cuda"]),
+        options=options
     )
 
     trainer.fit()
